@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+
+<html lang="ar" dir="rtl">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>نظام حجز موعيد عيادة طبية</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
+
+
+
+:root {
+
+        --primary-color: #5D5CDE;
+
+        --light-bg: #FFFFFF;
+
+        --dark-bg: #181818;
+
+        --light-text: #333333;
+
+        --dark-text: #F0F0F0;
+
+        --light-card: #F9F9F9;
+
+        --dark-card: #252525;
+
+        --light-hover: #F0F0F0;
+
+        --dark-hover: #303030;
+
+        --light-border: #E0E0E0;
+
+        --dark-border: #404040;
+
+    }
+
+
+
+        body {
+
+            font-family: 'Tajawal', sans-serif;
+
+            transition: background-color 0.3s, color 0.3s;
+
+        }
+
+
+
+        /* Light Mode */
+
+        body {
+
+            background-color: var(--light-bg);
+
+            color: var(--light-text);
+
+        }
+
+
+
+        .card {
+
+            background-color: var(--light-card);
+
+            border: 1px solid var(--light-border);
+
+        }
+
+
+
+        .hover-item:hover {
+
+            background-color: var(--light-hover);
+
+        }
+
+
+
+        /* Dark Mode */
+
+        body.dark {
+
+            background-color: var(--dark-bg);
+
+            color: var(--dark-text);
+
+        }
+
+
+
+        body.dark .card {
+
+            background-color: var(--dark-card);
+
+            border: 1px solid var(--dark-border);
+
+        }
+
+
+
+        body.dark .hover-item:hover {
+
+            background-color: var(--dark-hover);
+
+        }
+
+
+
+        body.dark .text-gray-700 {
+
+            color: var(--dark-text);
+
+        }
+
+
+
+        body.dark .bg-white {
+
+            background-color: var(--dark-card);
+
+        }
+
+
+
+        body.dark .border-gray-300 {
+
+            border-color: var(--dark-border);
+
+        }
+
+
+
+        body.dark .text-gray-900 {
+
+            color: var(--dark-text);
+
+        }
+
+
+
+        body.dark .bg-gray-50 {
+
+            background-color: var(--dark-hover);
+
+        }
+
+
+
+        body.dark input, body.dark select, body.dark textarea {
+
+            background-color: var(--dark-card);
+
+            color: var(--dark-text);
+
+            border-color: var(--dark-border);
+
+        }
+
+
+
+        body.dark .modal-content {
+
+            background-color: var(--dark-card);
+
+            color: var(--dark-text);
+
+        }
+
+
+
+        .loading-spinner {
+
+            width: 50px;
+
+            height: 50px;
+
+            border: 5px solid rgba(93, 92, 222, 0.3);
+
+            border-radius: 50%;
+
+            border-top-color: var(--primary-color);
+
+            animation: spin 1s infinite linear;
+
+        }
+
+
+
+@keyframes spin {
+
+            to {
+
+                transform: rotate(360deg);
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <!-- الشريط العلوي -->
+
+    <header class="bg-indigo-600 text-white py-4 px-6 flex justify-between items-center">
+
+        <div class="flex items-center">
+
+            <i class="fas fa-heartbeat text-2xl ml-2"></i>
+
+            <h1 class="text-xl md:text-2xl font-bold">نظام العيادة الطبية</h1>
+
+        </div>
+
+        <div class="flex items-center space-x-4">
+
+            <button id="theme-toggle" class="p-2 rounded-full hover:bg-indigo-700 focus:outline-none">
+
+                <i id="theme-icon" class="fas fa-moon"></i>
+
+            </button>
+
+            <div class="relative" id="user-menu-container">
+
+                <button id="user-menu-button" class="flex items-center space-x-1 focus:outline-none">
+
+                    <span id="current-user-name">تسجيل الدخول</span>
+
+                    <i class="fas fa-user-circle text-xl"></i>
+
+                </button>
+
+                <div id="user-menu" class="absolute left-0 mt-2 hidden w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-10">
+
+                    <div class="py-1" id="user-menu-items">
+
+                        <button id="login-button" class="block w-full text-right px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">تسجيل الدخول</button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- القائمة الجانبية والمحتوى الرئيسي -->
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+
+        <!-- القائمة الجانبية -->
+
+        <aside id="sidebar" class="w-full md:w-64 bg-indigo-800 text-white hidden md:block">
+
+            <nav class="p-4">
+
+                <ul id="nav-links">
+
+                    <li class="nav-item mb-2" data-section="dashboard" data-role="all">
+
+                        <a href="#" class="flex items-center p-2 rounded-md hover:bg-indigo-700 hover-item">
+
+                            <i class="fas fa-tachometer-alt w-6"></i>
+
+                            <span>لوحة التحكم</span>
+
+                        </a>
+
+                    </li>
+
+                    <li class="nav-item mb-2" data-section="appointments" data-role="all">
+
+                        <a href="#" class="flex items-center p-2 rounded-md hover:bg-indigo-700 hover-item">
+
+                            <i class="fas fa-calendar-check w-6"></i>
+
+                            <span>المواعيد</span>
+
+                        </a>
+
+                    </li>
+
+                    <li class="nav-item mb-2" data-section="patients" data-role="admin,reception,doctor">
+
+                        <a href="#" class="flex items-center p-2 rounded-md hover:bg-indigo-700 hover-item">
+
+                            <i class="fas fa-user-injured w-6"></i>
+
+                            <span>المرضى</span>
+
+                        </a>
+
+                    </li>
+
+                    <li class="nav-item mb-2" data-section="doctors" data-role="admin">
+
+                        <a href="#" class="flex items-center p-2 rounded-md hover:bg-indigo-700 hover-item">
+
+                            <i class="fas fa-user-md w-6"></i>
+
+                            <span>الأطباء</span>
+
+                        </a>
+
+                    </li>
+
+                    <li class="nav-item mb-2" data-section="reports" data-role="admin,doctor">
+
+                        <a href="#" class="flex items-center p-2 rounded-md hover:bg-indigo-700 hover-item">
+
+                            <i class="fas fa-chart-bar w-6"></i>
+
+                            <span>التقارير</span>
+
+                        </a>
+
+                    </li>
+
+                    <li class="nav-item mb-2" data-section="export" data-role="admin">
+
+                        <a href="#" class="flex items-center p-2 rounded-md hover:bg-indigo-700 hover-item">
+
+                            <i class="fas fa-file-export w-6"></i>
+
+                            <span>تصدير البيانات</span>
+
+                        </a>
+
+                    </li>
+
+                    <li class="nav-item mb-2" data-section="users" data-role="admin">
+
+                        <a href="#" class="flex items-center p-2 rounded-md hover:bg-indigo-700 hover-item">
+
+                            <i class="fas fa-users-cog w-6"></i>
+
+                            <span>إدارة المستخدمين</span>
+
+                        </a>
+
+                    </li>
+
+                </ul>
+
+            </nav>
+
+        </aside>
+
+
+        <!-- زر القائمة للشاشات الصغيرة -->
+
+        <button id="mobile-menu-button" class="md:hidden fixed top-20 right-4 bg-indigo-600 text-white p-2 rounded-md z-10">
+
+            <i class="fas fa-bars"></i>
+
+        </button>
+
+
+        <!-- المحتوى الرئيسي -->
+
+        <main class="flex-1 p-6">
+
+            <!-- قسم لوحة التحكم -->
+
+            <section id="dashboard-section" class="section-content">
+
+                <h2 class="text-2xl font-bold mb-6">لوحة التحكم</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
+                    <div class="card rounded-lg shadow-md p-6 flex items-center">
+
+                        <div class="rounded-full bg-blue-100 dark:bg-blue-900 p-3 ml-4">
+
+                            <i class="fas fa-calendar-check text-blue-500 dark:text-blue-300 text-xl"></i>
+
+                        </div>
+
+                        <div>
+
+                            <p class="text-gray-500 dark:text-gray-400">
+                                مواعيد اليوم
+                            </p>
+
+                            <h3 class="text-2xl font-bold" id="today-appointments-count">0</h3>
+
+                        </div>
+
+                    </div>
+
+                    <div class="card rounded-lg shadow-md p-6 flex items-center">
+
+                        <div class="rounded-full bg-green-100 dark:bg-green-900 p-3 ml-4">
+
+                            <i class="fas fa-user-injured text-green-500 dark:text-green-300 text-xl"></i>
+
+                        </div>
+
+                        <div>
+
+                            <p class="text-gray-500 dark:text-gray-400">
+                                إجمالي المرضى
+                            </p>
+
+                            <h3 class="text-2xl font-bold" id="total-patients-count">0</h3>
+
+                        </div>
+
+                    </div>
+
+                    <div class="card rounded-lg shadow-md p-6 flex items-center">
+
+                        <div class="rounded-full bg-purple-100 dark:bg-purple-900 p-3 ml-4">
+
+                            <i class="fas fa-user-md text-purple-500 dark:text-purple-300 text-xl"></i>
+
+                        </div>
+
+                        <div>
+
+                            <p class="text-gray-500 dark:text-gray-400">
+                                الأطباء
+                            </p>
+
+                            <h3 class="text-2xl font-bold" id="total-doctors-count">0</h3>
+
+                        </div>
+
+                    </div>
+
+                    <div class="card rounded-lg shadow-md p-6 flex items-center">
+
+                        <div class="rounded-full bg-yellow-100 dark:bg-yellow-900 p-3 ml-4">
+
+                            <i class="fas fa-clock text-yellow-500 dark:text-yellow-300 text-xl"></i>
+
+                        </div>
+
+                        <div>
+
+                            <p class="text-gray-500 dark:text-gray-400">
+                                مواعيد منتظرة
+                            </p>
+
+                            <h3 class="text-2xl font-bold" id="pending-appointments-count">0</h3>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- مواعيد اليوم -->
+
+                <div class="card rounded-lg shadow-md p-6 mb-8">
+
+                    <h3 class="text-xl font-bold mb-4">مواعيد اليوم</h3>
+
+                    <div class="overflow-x-auto">
+
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">الوقت</th>
+
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">اسم المريض</th>
+
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">الطبيب</th>
+
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">الحالة</th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody id="today-appointments-table" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+
+                                <!-- سيتم إضافة البيانات هنا عن طريق جافاسكريبت -->
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- قسم المواعيد -->
+
+            <section id="appointments-section" class="section-content hidden">
+
+                <div class="flex justify-between items-center mb-6">
+
+                    <h2 class="text-2xl font-bold">المواعيد</h2>
+
+                    <button id="add-appointment-button" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+
+                        <i class="fas fa-plus ml-1"></i> موعد جديد
+
+                    </button>
+
+                </div>
+
+
+                <div class="card rounded-lg shadow-md p-6 mb-8">
+
+                    <div class="mb-4 flex flex-wrap gap-4">
+
+                        <div class="w-full md:w-auto">
+
+                            <label for="filter-date" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">التاريخ</label>
+
+                            <input type="date" id="filter-date" class="block w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+
+                        </div>
+
+                        <div class="w-full md:w-auto">
+
+                            <label for="filter-doctor" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">الطبيب</label>
+
+                            <select id="filter-doctor" class="block w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+
+                                <option value="">الكل</option>
+
+                                <!-- سيتم إضافة الأطباء هنا عن طريق جافاسكريبت -->
+
+                            </select>
+
+                        </div>
+
+                        <div class="w-full md:w-auto">
+
+                            <label for="filter-status" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">الحالة</label>
+
+                            <select id="filter-status" class="block w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+
+                                <option value="">الكل</option>
+
+                                <option value="pending">قادم</option>
+
+                                <option value="completed">مكتمل</option>
+
+                                <option value="cancelled">ملغي</option>
+
+                            </select>
+
+                        </div>
+
+                        <div class="w-full md:w-auto flex items-end">
+
+                            <button id="filter-appointments-button" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+
+                                <i class="fas fa-filter ml-1"></i> تصفية
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="overflow-x-auto">
+
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">التاريخ</th>
+
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">الوقت</th>
+
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">اسم المريض</th>
+
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">الطبيب</th>
+
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">الحالة</th>
+
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">الإجراءات</th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody id="appointments-table" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+
+                                <!-- سيتم إضافة البيانات هنا عن طريق جافاسكريبت -->
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- قسم المرضى -->
+
+            <section id="patients-section" class="section-content hidden">
+
+                <div class="flex justify-between items-center mb-6">
+
+                    <h2 class="text-2xl font-bold">المرضى</h2>
+
+                    <button id="add-patient-button" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+
+                        <i class="fas fa-plus ml-1"></i> مريض جديد
+
+                    </button>
+
+                </div>
+
+
+                <div class="card rounded-lg shadow-md p-6 mb-8">
+
+                    <div class="mb-4">
+
+                        <div class="relative">
+
+                            <input type="text" id="search-patients" placeholder="بحث عن مريض..." class="block w-full p-2 pl-10 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+
+                                <i class="fas fa-search text-gray-400"></i>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="overflow-x-auto">
+
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">رقم الملف</th>
+
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">الاسم</th>
+
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">رقم الهاتف</th>
+
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">البريد الإلكتروني</th>
+
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">تاريخ الميلاد</th>
+
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">الإجراءات</th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody id="patients-table" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+
+                                <!-- سيتم إضافة البيانات هنا عن طريق جافاسكريبت -->
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- قسم الأطباء -->
+
+            <section id="doctors-section" class="section-content hidden">
+
+                <div class="flex justify-between items-center mb-6">
+
+                    <h2 class="text-2xl font-bold">الأطباء</h2>
+
+                    <button id="add-doctor-button" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+
+                        <i class="fas fa-plus ml-1"></i> طبيب جديد
+
+                    </button>
+
+                </div>
+
+
+                <div class="card rounded-lg shadow-md p-6 mb-8">
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="doctors-cards">
+
+                        <!-- سيتم إضافة بطاقات الأطباء هنا عن طريق جافاسكريبت -->
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- قسم التقارير -->
+
+            <section id="reports-section" class="section-content hidden">
+
+                <h2 class="text-2xl font-bold mb-6">التقارير</h2>
+
+
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+
+                    <div class="card rounded-lg shadow-md p-6">
+
+                        <h3 class="text-xl font-bold mb-4">تقارير داخلية</h3>
+
+                        <div class="space-y-4">
+
+                            <button class="report-button w-full text-right p-3 border border-gray-300 dark:border-gray-700 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700" data-report="appointments-summary">
+
+                                <i class="fas fa-calendar-check ml-2 text-indigo-500"></i>
+
+                                ملخص المواعيد
+
+                            </button>
+
+                            <button class="report-button w-full text-right p-3 border border-gray-300 dark:border-gray-700 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700" data-report="doctors-performance">
+
+                                <i class="fas fa-user-md ml-2 text-indigo-500"></i>
+
+                                أداء الأطباء
+
+                            </button>
+
+                            <button class="report-button w-full text-right p-3 border border-gray-300 dark:border-gray-700 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700" data-report="patients-statistics">
+
+                                <i class="fas fa-user-injured ml-2 text-indigo-500"></i>
+
+                                إحصائيات المرضى
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="card rounded-lg shadow-md p-6">
+
+                        <h3 class="text-xl font-bold mb-4">تقارير خارجية</h3>
+
+                        <div class="mb-4">
+
+                            <button id="sync-external-data" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+
+                                <i class="fas fa-sync-alt ml-1"></i> مزامنة البيانات الخارجية
+
+                            </button>
+
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
+
+                                آخر تحديث: <span id="last-sync-time">لم تتم المزامنة بعد</span>
+
+                            </p>
+
+                        </div>
+
+                        <div class="space-y-4">
+
+                            <button class="report-button w-full text-right p-3 border border-gray-300 dark:border-gray-700 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700" data-report="insurance-claims">
+
+                                <i class="fas fa-file-medical-alt ml-2 text-indigo-500"></i>
+
+                                مطالبات التأمين
+
+                            </button>
+
+                            <button class="report-button w-full text-right p-3 border border-gray-300 dark:border-gray-700 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700" data-report="financial-summary">
+
+                                <i class="fas fa-coins ml-2 text-indigo-500"></i>
+
+                                ملخص مالي
+
+                            </button>
+
+                            <button class="report-button w-full text-right p-3 border border-gray-300 dark:border-gray-700 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700" data-report="medication-usage">
+
+                                <i class="fas fa-pills ml-2 text-indigo-500"></i>
+
+                                استخدام الأدوية
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <div id="report-result" class="card rounded-lg shadow-md p-6 hidden">
+
+                    <div class="flex justify-between items-center mb-4">
+
+                        <h3 class="text-xl font-bold" id="report-title">عنوان التقرير</h3>
+
+                        <button id="close-report" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+
+                            <i class="fas fa-times"></i>
+
+                        </button>
+
+                    </div>
+
+                    <div id="report-content">
+
+                        <!-- محتوى التقرير سيظهر هنا -->
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- قسم تصدير البيانات -->
+
+            <section id="export-section" class="section-content hidden">
+
+                <h2 class="text-2xl font-bold mb-6">تصدير البيانات</h2>
+
+
+
+                <div class="card rounded-lg shadow-md p-6 mb-8">
+
+                    <h3 class="text-xl font-bold mb-4">اختر البيانات للتصدير</h3>
+
+
+
+                    <div class="space-y-4 mb-6">
+
+                        <div class="flex items-center">
+
+                            <input type="checkbox" id="export-appointments" class="export-checkbox w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+
+                            <label for="export-appointments" class="mr-2 block text-gray-700 dark:text-gray-300">المواعيد</label>
+
+                        </div>
+
+                        <div class="flex items-center">
+
+                            <input type="checkbox" id="export-patients" class="export-checkbox w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+
+                            <label for="export-patients" class="mr-2 block text-gray-700 dark:text-gray-300">المرضى</label>
+
+                        </div>
+
+                        <div class="flex items-center">
+
+                            <input type="checkbox" id="export-doctors" class="export-checkbox w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+
+                            <label for="export-doctors" class="mr-2 block text-gray-700 dark:text-gray-300">الأطباء</label>
+
+                        </div>
+
+                        <div class="flex items-center">
+
+                            <input type="checkbox" id="export-reports" class="export-checkbox w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+
+                            <label for="export-reports" class="mr-2 block text-gray-700 dark:text-gray-300">التقارير</label>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="mb-6">
+
+                        <label for="export-format" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">صيغة التصدير</label>
+
+                        <select id="export-format" class="block w-full md:w-64 p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+
+                            <option value="json">JSON</option>
+
+                            <option value="csv">CSV</option>
+
+                            <option value="excel">Excel</option>
+
+                            <option value="pdf">PDF</option>
+
+                        </select>
+
+                    </div>
+
+
+
+                    <div class="flex flex-wrap gap-4">
+
+                        <button id="preview-export-button" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+
+                            <i class="fas fa-eye ml-1"></i> معاينة
+
+                        </button>
+
+                        <button id="export-data-button" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+
+                            <i class="fas fa-file-export ml-1"></i> تصدير
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+
+                <div id="export-preview" class="card rounded-lg shadow-md p-6 hidden">
+
+                    <div class="flex justify-between items-center mb-4">
+
+                        <h3 class="text-xl font-bold">معاينة البيانات</h3>
+
+                        <button id="close-preview" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+
+                            <i class="fas fa-times"></i>
+
+                        </button>
+
+                    </div>
+
+                    <div class="overflow-x-auto">
+
+                        <pre id="export-preview-content" class="bg-gray-100 dark:bg-gray-800 p-4 rounded-md text-sm overflow-x-auto" dir="ltr"></pre>
+
+                    </div>
+
+                    <div class="mt-4">
+
+                        <p class="text-sm text-gray-500 dark:text-gray-400">
+
+                            ملاحظة: هذه معاينة للبيانات. لتنزيل الملف، اضغط على زر التصدير ثم الحفظ.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+
+                <div id="export-result" class="card rounded-lg shadow-md p-6 hidden">
+
+                    <div id="export-success" class="hidden">
+
+                        <div class="flex items-center mb-4 text-green-500">
+
+                            <i class="fas fa-check-circle text-2xl ml-2"></i>
+
+                            <h3 class="text-xl font-bold">تم تصدير البيانات بنجاح</h3>
+
+                        </div>
+
+                        <p class="mb-4">
+
+                            تم تجهيز البيانات المختارة للتصدير. لحفظ البيانات:
+
+                        </p>
+
+                        <ol class="list-decimal mr-6 mb-4 space-y-2">
+
+                            <li>انقر على زر "حفظ البيانات" أدناه</li>
+
+                            <li>انقر بزر الماوس الأيمن على النص</li>
+
+                            <li>اختر "حفظ باسم" أو "Save as" من القائمة</li>
+
+                            <li>اختر موقع الحفظ واكتب اسم الملف المناسب</li>
+
+                        </ol>
+
+                        <div class="mb-4">
+
+                            <button id="show-export-data" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+
+                                <i class="fas fa-save ml-1"></i> حفظ البيانات
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div id="export-data-content" class="hidden">
+
+                        <div class="flex justify-between items-center mb-4">
+
+                            <h3 class="text-xl font-bold">بيانات التصدير</h3>
+
+                            <button id="close-export-data" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+
+                                <i class="fas fa-times"></i>
+
+                            </button>
+
+                        </div>
+
+                        <div class="overflow-x-auto">
+
+                            <pre id="final-export-content" class="bg-gray-100 dark:bg-gray-800 p-4 rounded-md text-sm overflow-x-auto" dir="ltr"></pre>
+
+                        </div>
+
+                        <div class="mt-4">
+
+                            <p class="text-sm text-gray-500 dark:text-gray-400">
+
+                                انقر بزر الماوس الأيمن على النص أعلاه واختر "حفظ باسم" لتنزيل الملف.
+
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- قسم إدارة المستخدمين -->
+
+            <section id="users-section" class="section-content hidden">
+
+                <div class="flex justify-between items-center mb-6">
+
+                    <h2 class="text-2xl font-bold">إدارة المستخدمين</h2>
+
+                    <button id="add-user-button" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+
+                        <i class="fas fa-plus ml-1"></i> مستخدم جديد
+
+                    </button>
+
+                </div>
+
+
+                <div class="card rounded-lg shadow-md p-6 mb-8">
+
+                    <div class="overflow-x-auto">
+
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">اسم المستخدم</th>
+
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">البريد الإلكتروني</th>
+
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">نوع المستخدم</th>
+
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">الحالة</th>
+
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">الإجراءات</th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody id="users-table" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+
+                                <!-- سيتم إضافة البيانات هنا عن طريق جافاسكريبت -->
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+
+    <!-- نافذة تسجيل الدخول -->
+
+    <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+
+        <div class="modal-content bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md mx-4">
+
+            <div class="p-6">
+
+                <div class="flex justify-between items-center mb-4">
+
+                    <h3 class="text-xl font-bold">تسجيل الدخول</h3>
+
+                    <button id="close-login-modal" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+
+                        <i class="fas fa-times"></i>
+
+                    </button>
+
+                </div>
+
+                <div class="space-y-4">
+
+                    <div>
+
+                        <label for="login-username" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">اسم المستخدم</label>
+
+                        <input type="text" id="login-username" class="text-base block w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+
+                    </div>
+
+                    <div>
+
+                        <label for="login-password" class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">كلمة المرور</label>
+
+                        <input type="password" id="login-password" class="text-base block w-full p-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500">
+
+                    </div>
+
+                    <div id="login-error" class="text-red-500 text-sm hidden"></div>
+
+                    <div class="flex justify-between items-center">
+
+                        <div>
+
+                            <label class="text-sm text-gray-500 dark:text-gray-400">
+
+                                <input type="checkbox" id="login-remember" class="ml-1">
+
+                                تذكرني
+
+                            </label>
+
+                        </div>
+
+                        <button class="text-sm text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300">نسيت كلمة المرور؟</button>
+
+                    </div>
+
+                    <button id="submit-login" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+
+                        تسجيل الدخول
+
+                    </button>
+
+                </div>
+
+
+
+                <!-- تسجيل دخول تلقائي للعرض -->
+
+                <div class="mt-6 border-t border-gray-200 dark:border-gray-700 pt-4">
+
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                        تسجيل دخول سريع (للعرض فقط):
+                    </p>
+
+                    <div class="grid grid-cols-2 gap-2">
+
+                        <button data-username="admin" data-password="admin" class="quick-login bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-sm font-medium py-1 px-2 rounded">
+
+                            مدير النظام
+
+                        </button>
+
+                        <button data-username="doctor" data-password="doctor" class="quick-login bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-sm font-medium py-1 px-2 rounded">
+                            &nb
